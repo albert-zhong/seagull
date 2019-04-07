@@ -1,4 +1,4 @@
-City,State,GeoBox0,GeoBox1,GeoBox3,GeoBox4,Extraversion,Neuroticism,Agreeableness,Conscientiousness,Openness
+City,State,GeoBox0,GeoBox1,GeoBox2,GeoBox3,Extraversion,Neuroticism,Agreeableness,Conscientiousness,Openness
 nyc,new_york,-74.25909,40.477399,-73.700181,40.916178,0.05,-0.04,-0.17,-0.03,0.15
 la,california,-118.562114,33.951176,-118.187084,34.16603,0.09,-0.12,-0.06,-0.06,0.17
 chicago,illinois,-87.940101,41.643919,-87.523984,42.023022,0.12,-0.1,-0.11,0.05,0.14
