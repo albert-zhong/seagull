@@ -21,7 +21,7 @@ class City (object):
                "\nConscientiousness: " + self.c + "\nOpenness: " + self.o
 
 
-def create_city_from_csv(csv_file_path):
+def create_city_from_csv(csv_file_path, specific_city=None):
     cities = []  # Set of all City objects
 
     with open(csv_file_path, "r") as csv_file:
@@ -42,7 +42,12 @@ def create_city_from_csv(csv_file_path):
                                agreeableness, conscientiousness, openness)
             cities.append(city_object)
 
-    return cities
+    if specific_city is not None:  # Return a specific city if it was requested
+        for c in cities:
+            if c.city == specific_city:
+                return c
+    else:
+        return cities
 
 
 def get_output_path(city):
