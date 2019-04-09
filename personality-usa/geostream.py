@@ -3,7 +3,7 @@ from tweepy import OAuthHandler
 from tweepy.streaming import StreamListener
 
 import re
-import os
+import time
 import csv
 
 import codes
@@ -15,10 +15,19 @@ class GeoListener(StreamListener):
         super().__init__(api=None)
         self.city_object = city_object
         self.counter = 0
+        self.dictionary = {}  # Dictionary of words; keys are words, values are frequency
+
+    def on_connect(self):
+        print("Connected to Twitter stream!")
 
     def on_status(self, status):
         text = status.text
-        print(parse_text_to_list(text))
+        word_list = parse_text_to_list(text)
+
+        for word in word_list:
+            self.dictionary[word] = self.dictionary.setdefault(word, 0) + 1
+
+        print(self.dictionary)
 
     def on_error(self, status_code):
         print("Encountered error with status code: " + status_code)
@@ -56,3 +65,5 @@ def create_stream(city):
     my_stream = Stream(auth, my_listener)
 
     my_stream.filter(languages=["en"], locations=city.geo_box)
+    print("Hello World")
+
