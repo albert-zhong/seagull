@@ -22,32 +22,35 @@ class City (object):
 
 
 def create_city_from_csv(csv_file_path, specific_city=None):
-    cities = []  # Set of all City objects
 
+    cities = []  # Set of all City objects
     with open(csv_file_path, "r") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         next(csv_reader)  # Skips the header, which is the first line
         for row in csv_reader:
-            city = row[0]
-            state = row[1]
-            geo_box = [row[2], row[3], row[4], row[5]]
-            extraversion = row[6]
-            neuroticism = row[7]
-            agreeableness = row[8]
-            conscientiousness = row[9]
-            openness = row[10]
-            path = get_output_path(city)
+            if specific_city is not None: # Return a specific city if it was requested
+                if row[0] == specific_city:
+                    return create_city_from_row(row)
+            else:
+                city_object = create_city_from_row(row)
+                cities.append(city_object)
 
-            city_object = City(path, city, state, geo_box, extraversion, neuroticism,
-                               agreeableness, conscientiousness, openness)
-            cities.append(city_object)
+    return cities
 
-    if specific_city is not None:  # Return a specific city if it was requested
-        for c in cities:
-            if c.city == specific_city:
-                return c
-    else:
-        return cities
+
+def create_city_from_row(row):
+    city = row[0]
+    state = row[1]
+    geo_box = [float(row[2]), float(row[3]), float(row[4]), float(row[5])]
+    extraversion = row[6]
+    neuroticism = row[7]
+    agreeableness = row[8]
+    conscientiousness = row[9]
+    openness = row[10]
+    path = get_output_path(city)
+    city_object = City(path, city, state, geo_box, extraversion, neuroticism,
+                       agreeableness, conscientiousness, openness)
+    return city_object
 
 
 def get_output_path(city):
