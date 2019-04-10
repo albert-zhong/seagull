@@ -59,3 +59,9 @@ def get_output_path(city):
     file_name = city + ".csv"
     file_path = os.path.join(here, os.pardir, data_folder, file_name)
     return file_path
+
+def does_file_exist(city):
+    if os.path.exists(city.path) and os.path.getsize(city.path) > 0:
+        return True
+    else:
+        return False

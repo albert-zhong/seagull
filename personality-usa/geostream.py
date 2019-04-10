@@ -2,10 +2,7 @@ from tweepy import Stream
 from tweepy import OAuthHandler
 from tweepy.streaming import StreamListener
 
-import re
-import time
-import csv
-
+import words
 import codes
 
 
@@ -22,12 +19,13 @@ class GeoListener(StreamListener):
 
     def on_status(self, status):
         text = status.text
-        word_list = parse_text_to_list(text)
+        word_list = words.parse_text_to_list(text)
 
         for word in word_list:
             self.dictionary[word] = self.dictionary.setdefault(word, 0) + 1
 
-        print(self.dictionary)
+        if len(self.dictionary) > 5:
+            words.create_csv_from_dictionary(self.dictionary, self.city_object)
 
     def on_error(self, status_code):
         print("Encountered error with status code: " + status_code)
@@ -38,20 +36,6 @@ class GeoListener(StreamListener):
     def on_timeout(self):
         print("Timeout...")
         return True  # Don't kill the stream
-
-
-def parse_text_to_list(text):
-    text = text.lower()
-
-    text = re.sub(r"http\S+", "", text)  # Removes links
-    text = re.sub(r"@\S+", "", text)  # Removes @user
-
-    pattern = re.compile('([^\s\w]|_)+', re.UNICODE)  # Removes everything but spaces and alphanumeric chars
-    text = pattern.sub('', text)
-
-    words = text.split()
-
-    return words
 
 
 def create_stream(city):
