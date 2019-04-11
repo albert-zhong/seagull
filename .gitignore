@@ -107,3 +107,4 @@ venv.bak/
 .idea/
 .vscode/
 personality-usa/codes.py
+data/la.csv
