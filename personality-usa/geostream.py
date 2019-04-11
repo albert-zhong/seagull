@@ -15,17 +15,26 @@ class GeoListener(StreamListener):
         self.dictionary = {}  # Dictionary of words; keys are words, values are frequency
 
     def on_connect(self):
-        print("Connected to Twitter stream!")
+        print(">> Connected to Twitter stream!")
 
     def on_status(self, status):
+
+        # Update counter and print to console
+        self.counter += 1
+        print(str(self.counter) + " tweets processed")
+
+        # Parse text into a list of all words
         text = status.text
         word_list = words.parse_text_to_list(text)
 
+        # Add word counts to local dictionary variable
         for word in word_list:
             self.dictionary[word] = self.dictionary.setdefault(word, 0) + 1
 
-        if len(self.dictionary) > 5:
-            words.create_csv_from_dictionary(self.dictionary, self.city_object)
+        # Writes dictionary to CSV file every 50 tweets
+        if self.counter % 50 == 0:
+            print(">> Saving to CSV file!")
+            words.dictionary_to_csv(self.dictionary, self.city_object.path)
 
     def on_error(self, status_code):
         print("Encountered error with status code: " + status_code)
