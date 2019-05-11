@@ -31,8 +31,8 @@ class GeoListener(StreamListener):
         for word in word_list:
             self.dictionary[word] = self.dictionary.setdefault(word, 0) + 1
 
-        # Writes dictionary to CSV file every 50 tweets
-        if self.counter % 50 == 0:
+        # Writes dictionary to CSV file every 10 tweets
+        if self.counter % 100 == 0:
             print(">> Saving to CSV file!")
             words.dictionary_to_csv(self.dictionary, self.city_object.path)
 
@@ -58,5 +58,3 @@ def create_stream(city):
     my_stream = Stream(auth, my_listener)
 
     my_stream.filter(languages=["en"], locations=city.geo_box)
-    print("Hello World")
-

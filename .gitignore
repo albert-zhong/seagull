@@ -108,3 +108,5 @@ venv.bak/
 .vscode/
 personality-usa/codes.py
 data/la.csv
+data/seattle.csv
+data/seattle_rf.csv
