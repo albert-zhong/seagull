@@ -2,10 +2,9 @@ import csv
 import os
 
 
-class City (object):
-    def __init__(self, path, city, state, geo_box, extraversion, neuroticism, agreeableness, conscientiousness, openness):
-        self.path = path
-        self.city = city
+class City(object):
+    def __init__(self, city_name, state, geo_box, extraversion, neuroticism, agreeableness, conscientiousness, openness):
+        self.city_name = city_name
         self.state = state
         self.geo_box = geo_box
         self.e = extraversion
@@ -13,56 +12,84 @@ class City (object):
         self.a = agreeableness
         self.c = conscientiousness
         self.o = openness
-        self.path = path
+        self.path = self.get_path()
 
     def __str__(self):
-        return self.city + ", " + self.state + "\n" + str(self.geo_box) + \
-               "\n" + "Extraversion: " + self.e + "\nNeuroticism: " + self.n + "\nAgreeableness: " + self.a + \
-               "\nConscientiousness: " + self.c + "\nOpenness: " + self.o
+        return "%s, %s\n" % (self.city_name, self.state) + \
+               "%s\n" % (str(self.geo_box)) + \
+               "extraversion = %g\n" % self.e + \
+               "neuroticism = %g\n" % self.n + \
+               "agreeableness = %g\n" % self.a + \
+               "conscientiousness = %g\n" % self.c + \
+               "openness = %g\n" % self.o
+
+    def get_path(self):
+        here = os.getcwd()
+        data_folder = "data"
+        file_name = self.city_name + ".csv"
+        file_path = os.path.join(here, os.pardir, data_folder, file_name)  # os.pardir is parent directory
+        return file_path
+
+    def file_exists(self):
+        return os.path.exists(self.path) and os.path.getsize(self.path) > 0
 
 
-def create_city_from_csv(csv_file_path, specific_city=None):
+DEFAULT_TEMPLATE_PATH = os.path.join(os.getcwd(), os.pardir, "data", "cities_template.csv")
 
-    cities = []  # Set of all City objects
-    with open(csv_file_path, "r") as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
+
+# This method looks through cities_template.csv to return a City object given a requested city_name
+def create_city(city_name):
+    with open(DEFAULT_TEMPLATE_PATH, "r") as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=",")
         next(csv_reader)  # Skips the header, which is the first line
+
         for row in csv_reader:
-            if specific_city is not None: # Return a specific city if it was requested
-                if row[0] == specific_city:
-                    return create_city_from_row(row)
-            else:
-                city_object = create_city_from_row(row)
-                cities.append(city_object)
+            if row[0] == city_name.lower():  # found specified city name in cities_template.csv
+                return create_city_from_row(row)
 
-    return cities
+    raise Exception("%s not found in %s" % (city_name, DEFAULT_TEMPLATE_PATH))
 
 
+# This method looks through cities_template.csv to return a list of City objects given multiple city_names
+def create_cities(*city_names):
+    city_objects = []
+    requested_cities = set([city_name.lower() for city_name in city_names])
+
+    with open(DEFAULT_TEMPLATE_PATH, "r") as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=",")
+        next(csv_reader)  # Skips the header, which is the first line
+
+        for row in csv_reader:
+            if row[0] in requested_cities:  # found a specified city name in cities_template.csv
+                city_objects.append(create_city_from_row(row))
+
+    return city_objects
+
+
+# This method creates a list of ALL City objects given cities_template.csv
+def create_all_cities():
+    city_objects = []
+
+    with open(DEFAULT_TEMPLATE_PATH, "r") as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=",")
+        next(csv_reader)  # Skips the header, which is the first line
+
+        for row in csv_reader:
+            city_objects.append(create_city_from_row(row))
+
+    return city_objects
+
+
+# Given a row from cities_template.csv, this method returns a City object
 def create_city_from_row(row):
-    city = row[0]
+    city_name = row[0]
     state = row[1]
-    geo_box = [float(row[2]), float(row[3]), float(row[4]), float(row[5])]
-    extraversion = row[6]
-    neuroticism = row[7]
-    agreeableness = row[8]
-    conscientiousness = row[9]
-    openness = row[10]
-    path = get_output_path(city)
-    city_object = City(path, city, state, geo_box, extraversion, neuroticism,
-                       agreeableness, conscientiousness, openness)
+    geo_box = [float(row[i]) for i in range(2, 6)]  # creates list of geo_box coord integers
+    extraversion = float(row[6])
+    neuroticism = float(row[7])
+    agreeableness = float(row[8])
+    conscientiousness = float(row[9])
+    openness = float(row[10])
+
+    city_object = City(city_name, state, geo_box, extraversion, neuroticism, agreeableness, conscientiousness, openness)
     return city_object
-
-
-def get_output_path(city):
-    here = os.getcwd()
-    data_folder = "data"
-    file_name = city + ".csv"
-    file_path = os.path.join(here, os.pardir, data_folder, file_name)
-    return file_path
-
-
-def does_file_exist(city):
-    if os.path.exists(city.path) and os.path.getsize(city.path) > 0:
-        return True
-    else:
-        return False

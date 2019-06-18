@@ -1,13 +1,11 @@
 import geostream
-import city
-import words
-
-# seattle = city.create_city_from_csv("../data/cities.csv", "seattle")
-# geostream.create_stream(seattle)
+import city as c
+import file_handler
 
 
 def main():
-    words.create_relative_frequency_csv("../data/seattle.csv")
+    seattle = c.create_city("Seattle")
+    print(seattle)
 
 
 if __name__ == "__main__":

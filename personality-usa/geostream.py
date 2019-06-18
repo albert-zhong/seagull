@@ -2,7 +2,9 @@ from tweepy import Stream
 from tweepy import OAuthHandler
 from tweepy.streaming import StreamListener
 
-import words
+from collections import defaultdict
+
+import file_handler
 import codes
 
 
@@ -25,7 +27,7 @@ class GeoListener(StreamListener):
 
         # Parse text into a list of all words
         text = status.text
-        word_list = words.parse_text_to_list(text)
+        word_list = file_handler.parse_text_to_list(text)
 
         # Add word counts to local dictionary variable
         for word in word_list:
@@ -34,7 +36,7 @@ class GeoListener(StreamListener):
         # Writes dictionary to CSV file every 10 tweets
         if self.counter % 100 == 0:
             print(">> Saving to CSV file!")
-            words.dictionary_to_csv(self.dictionary, self.city_object.path)
+            file_handler.dictionary_to_csv(self.dictionary, self.city_object.path)
 
     def on_error(self, status_code):
         print("Encountered error with status code: " + status_code)
