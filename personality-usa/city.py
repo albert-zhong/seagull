@@ -12,7 +12,6 @@ class City(object):
         self.a = agreeableness
         self.c = conscientiousness
         self.o = openness
-        self.path = self.get_path()
 
     def __str__(self):
         return "%s, %s\n" % (self.city_name, self.state) + \
@@ -21,7 +20,8 @@ class City(object):
                "neuroticism = %g\n" % self.n + \
                "agreeableness = %g\n" % self.a + \
                "conscientiousness = %g\n" % self.c + \
-               "openness = %g\n" % self.o
+               "openness = %g\n" % self.o + \
+               "path = %s\n" % self.get_path()
 
     def get_path(self):
         here = os.getcwd()
@@ -31,7 +31,7 @@ class City(object):
         return file_path
 
     def file_exists(self):
-        return os.path.exists(self.path) and os.path.getsize(self.path) > 0
+        return os.path.exists(self.get_path()) and os.path.getsize(self.get_path()) > 0
 
 
 DEFAULT_TEMPLATE_PATH = os.path.join(os.getcwd(), os.pardir, "data", "cities_template.csv")

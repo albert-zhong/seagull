@@ -2,15 +2,13 @@ from tweepy import Stream
 from tweepy import OAuthHandler
 from tweepy.streaming import StreamListener
 
-from collections import defaultdict
-
 import file_handler
 import codes
 
 
 class GeoListener(StreamListener):
 
-    def __init__(self, city_object, api=None):
+    def __init__(self, city_object, api=None):  # Don't touch this
         super().__init__(api=None)
         self.city_object = city_object
         self.counter = 0
@@ -23,23 +21,23 @@ class GeoListener(StreamListener):
 
         # Update counter and print to console
         self.counter += 1
-        print(str(self.counter) + " tweets processed")
+        print("%d tweets processed" % self.counter)
 
         # Parse text into a list of all words
         text = status.text
-        word_list = file_handler.parse_text_to_list(text)
+        word_list = file_handler.parse(text)
 
         # Add word counts to local dictionary variable
         for word in word_list:
             self.dictionary[word] = self.dictionary.setdefault(word, 0) + 1
 
         # Writes dictionary to CSV file every 10 tweets
-        if self.counter % 100 == 0:
+        if self.counter % 5 == 0:
             print(">> Saving to CSV file!")
             file_handler.dictionary_to_csv(self.dictionary, self.city_object.path)
 
     def on_error(self, status_code):
-        print("Encountered error with status code: " + status_code)
+        print("Encountered error with status code: %d" % status_code)
         if status_code == 420:  # Too many failed connections in a window of time
             return False  # Kill stream
         return True  # By default don't kill the stream
