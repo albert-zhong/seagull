@@ -2,7 +2,6 @@ from collections import Counter
 import operator
 import csv
 import re
-import os
 
 
 # This method takes some string, filters it, and returns a list of strings
@@ -20,20 +19,19 @@ def parse(text):
 
 # Method to take any dictionary object and add it to any csv, use this
 def dictionary_to_csv(city, dictionary):
-    csv_file_path = city.get_path()
 
     if city.file_exists():  # If the file already exists, combine current and new dictionary
-        current_dictionary = Counter(convert_csv_to_dictionary(csv_file_path))
+        current_dictionary = Counter(convert_csv_to_dictionary(city))
         new_dictionary = Counter(dictionary)
         combined_dictionary = current_dictionary + new_dictionary
-        convert_dictionary_to_new_csv(combined_dictionary, csv_file_path)
+        convert_dictionary_to_new_csv(city, combined_dictionary)
 
     else:  # If the file doesn't exist yet, create a new CSV
-        convert_dictionary_to_new_csv(dictionary, csv_file_path)
+        convert_dictionary_to_new_csv(city, dictionary)
 
 
 # Internal method to convert a dictionary to a new CSV file, do not touch this
-def convert_dictionary_to_new_csv(dictionary, city):
+def convert_dictionary_to_new_csv(city, dictionary):
     csv_file_path = city.get_path()
 
     with open(csv_file_path, "w", newline="") as csv_file:

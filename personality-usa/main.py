@@ -4,8 +4,8 @@ import file_handler
 
 
 def main():
-    seattle = c.create_city("Seattle")
-    print(seattle.file_exists())
+    new_york_city = c.create_city("nyc")
+    new_york_city.create_steam()
 
 
 if __name__ == "__main__":

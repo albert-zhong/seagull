@@ -3,7 +3,6 @@ from tweepy import OAuthHandler
 from tweepy.streaming import StreamListener
 
 import file_handler
-import codes
 
 
 class GeoListener(StreamListener):
@@ -32,9 +31,9 @@ class GeoListener(StreamListener):
             self.dictionary[word] = self.dictionary.setdefault(word, 0) + 1
 
         # Writes dictionary to CSV file every 10 tweets
-        if self.counter % 5 == 0:
+        if self.counter % 10 == 0:
             print(">> Saving to CSV file!")
-            file_handler.dictionary_to_csv(self.dictionary, self.city_object.path)
+            file_handler.dictionary_to_csv(self.city_object, self.dictionary)
 
     def on_error(self, status_code):
         print("Encountered error with status code: %d" % status_code)
@@ -45,16 +44,3 @@ class GeoListener(StreamListener):
     def on_timeout(self):
         print("Timeout...")
         return True  # Don't kill the stream
-
-
-def create_stream(city):
-
-    # Create Twitter stream
-    auth = OAuthHandler(codes.consumer_key, codes.consumer_secret)
-    auth.set_access_token(codes.access_token, codes.access_secret)
-
-    # Create StreamListener
-    my_listener = GeoListener(city)
-    my_stream = Stream(auth, my_listener)
-
-    my_stream.filter(languages=["en"], locations=city.geo_box)

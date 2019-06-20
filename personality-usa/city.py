@@ -1,6 +1,12 @@
 import csv
 import os
 
+from tweepy import Stream
+from tweepy import OAuthHandler
+
+from geostreaming import GeoListener
+import codes
+
 
 class City(object):
     def __init__(self, city_name, state, geo_box, extraversion, neuroticism, agreeableness, conscientiousness, openness):
@@ -32,6 +38,18 @@ class City(object):
 
     def file_exists(self):
         return os.path.exists(self.get_path()) and os.path.getsize(self.get_path()) > 0
+
+    # IMPORTANT METHOD: Creates Twitter stream by authenticating with tweepy
+    def create_steam(self):
+        # Create Twitter stream
+        auth = OAuthHandler(codes.consumer_key, codes.consumer_secret)
+        auth.set_access_token(codes.access_token, codes.access_secret)
+
+        # Create StreamListener
+        my_listener = GeoListener(self)
+        my_stream = Stream(auth, my_listener)
+
+        my_stream.filter(languages=["en"], locations=self.geo_box)
 
 
 DEFAULT_TEMPLATE_PATH = os.path.join(os.getcwd(), os.pardir, "data", "cities_template.csv")
