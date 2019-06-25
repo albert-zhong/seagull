@@ -4,29 +4,30 @@ import os
 from tweepy import Stream
 from tweepy import OAuthHandler
 
-from geostreaming import GeoListener
+from geostreaming import GeoListener, AsynchronousGeoListener
 import codes
 
 
 class City(object):
-    def __init__(self, city_name, state, geo_box, extraversion, neuroticism, agreeableness, conscientiousness, openness):
+    def __init__(self, city_name, state, geo_box,
+                 extraversion, neuroticism, agreeableness, conscientiousness, openness,):
         self.city_name = city_name
         self.state = state
         self.geo_box = geo_box
-        self.e = extraversion
-        self.n = neuroticism
-        self.a = agreeableness
-        self.c = conscientiousness
-        self.o = openness
+        self.extraversion = extraversion
+        self.neuroticism = neuroticism
+        self.agreeableness = agreeableness
+        self.conscientiousness = conscientiousness
+        self.openness = openness
 
     def __str__(self):
         return "%s, %s\n" % (self.city_name, self.state) + \
                "%s\n" % (str(self.geo_box)) + \
-               "extraversion = %g\n" % self.e + \
-               "neuroticism = %g\n" % self.n + \
-               "agreeableness = %g\n" % self.a + \
-               "conscientiousness = %g\n" % self.c + \
-               "openness = %g\n" % self.o + \
+               "extraversion = %g\n" % self.extraversion + \
+               "neuroticism = %g\n" % self.neuroticism + \
+               "agreeableness = %g\n" % self.agreeableness + \
+               "conscientiousness = %g\n" % self.conscientiousness + \
+               "openness = %g\n" % self.openness + \
                "path = %s\n" % self.get_path()
 
     def get_path(self):
@@ -40,13 +41,16 @@ class City(object):
         return os.path.exists(self.get_path()) and os.path.getsize(self.get_path()) > 0
 
     # IMPORTANT METHOD: Creates Twitter stream by authenticating with tweepy
-    def create_steam(self):
+    def create_steam(self, asynchronous=False):
         # Create Twitter stream
         auth = OAuthHandler(codes.consumer_key, codes.consumer_secret)
         auth.set_access_token(codes.access_token, codes.access_secret)
 
         # Create StreamListener
-        my_listener = GeoListener(self)
+        if asynchronous:
+            my_listener = AsynchronousGeoListener(self)
+        else:
+            my_listener = GeoListener(self)
         my_stream = Stream(auth, my_listener)
 
         my_stream.filter(languages=["en"], locations=self.geo_box)
@@ -109,5 +113,6 @@ def create_city_from_row(row):
     conscientiousness = float(row[9])
     openness = float(row[10])
 
-    city_object = City(city_name, state, geo_box, extraversion, neuroticism, agreeableness, conscientiousness, openness)
+    city_object = City(city_name, state, geo_box,
+                       extraversion, neuroticism, agreeableness, conscientiousness, openness)
     return city_object

@@ -1,11 +1,19 @@
-import geostreaming as gs
 import city as c
-import file_handler
 
 
 def main():
-    new_york_city = c.create_city("nyc")
-    new_york_city.create_steam()
+    collect_stream("seattle")
+
+
+def collect_all_streams():
+    all_cities_objects = c.create_all_cities()
+    for city_object in all_cities_objects:
+        city_object.create_steam(asynchronous=True)
+
+
+def collect_stream(city_name):
+    city_object = c.create_city(city_name)
+    city_object.create_steam()
 
 
 if __name__ == "__main__":
