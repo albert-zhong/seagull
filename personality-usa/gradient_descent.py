@@ -6,7 +6,8 @@ class GradientDescent(object):
         self.X = X
         self.y = y
 
-        self.m, self.n = X.shape
+        self.m, self.n = X.shape  # m is the number of training examples, n is the number of features
+        # n > 1 since we will always have "1" as the first feature to allow for bias calculation
 
         self.theta = np.ones(self.n)  # parameters for the predictive function that will soon be made
         self.alpha = alpha  # alpha is the learning rate
