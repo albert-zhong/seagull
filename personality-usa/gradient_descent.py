@@ -22,8 +22,8 @@ class GradientDescent(object):
 
 
 X = np.array([[1, 1], [1, 2], [1, 3], [1, 4], [1, 5]])
-y = np.array([2, 3, 4, 5, 6])
+y = np.array([3, 4, 5, 6, 7])
 
-test = GradientDescent(X, y)
+test = GradientDescent(X, y, 0.01, 10000)
 test.learn()
 print(test.theta)
