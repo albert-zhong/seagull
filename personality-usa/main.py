@@ -2,7 +2,7 @@ import city as c
 
 
 def main():
-    collect_stream("seattle")
+    collect_stream("san_francisco")
 
 
 def collect_all_streams():

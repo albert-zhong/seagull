@@ -20,10 +20,12 @@ class GradientDescent(object):
             gradient = np.dot(self.X.transpose(), loss) / self.m
             self.theta -= self.alpha * gradient
 
+    def predict(self, x):
+        return np.dot(self.theta, x)
 
-X = np.array([[1, 1], [1, 2], [1, 3], [1, 4], [1, 5]])
+
+X = np.array([[1, 1, 9], [1, 2, 5], [1, 3, 4], [1, 4, 3], [1, 5, 2]])
 y = np.array([3, 4, 5, 6, 7])
 
 test = GradientDescent(X, y, 0.01, 10000)
 test.learn()
-print(test.theta)

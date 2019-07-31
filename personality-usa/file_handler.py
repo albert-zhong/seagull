@@ -43,12 +43,12 @@ def convert_dictionary_to_new_csv(city, dictionary):
 
 
 # Internal method to convert a CSV file to a dictionary object, do not touch this
-def convert_csv_to_dictionary(city):
-    if not city.file_exists():
-        raise Exception("%s.csv not found" % city.city_name)
+def convert_csv_to_dictionary(city_object):
+    if not city_object.file_exists():
+        raise Exception("%s.csv not found" % city_object.city_name)
 
     my_dict = {}
-    csv_file_path = city.get_path()
+    csv_file_path = city_object.get_path()
 
     with open(csv_file_path, "r") as csv_file:
         reader = csv.reader(csv_file)

@@ -56,7 +56,7 @@ class City(object):
         my_stream.filter(languages=["en"], locations=self.geo_box)
 
 
-DEFAULT_TEMPLATE_PATH = os.path.join(os.getcwd(), os.pardir, "data", "cities_template.csv")
+DEFAULT_TEMPLATE_PATH = os.path.join(os.getcwd(), os.pardir, "templates", "cities_template.csv")
 
 
 # This method looks through cities_template.csv to return a City object given a requested city_name
