@@ -30,6 +30,9 @@ class City(object):
                "openness = %g\n" % self.openness + \
                "path = %s\n" % self.get_path()
 
+    def get_traits(self):
+        return [self.openness, self.conscientiousness, self.extraversion, self.agreeableness, self.neuroticism]
+
     def get_path(self):
         here = os.getcwd()
         data_folder = "data"
