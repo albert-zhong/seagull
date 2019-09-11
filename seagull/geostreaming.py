@@ -1,67 +1,111 @@
 from tweepy.streaming import StreamListener
+from tweepy import Stream
+from tweepy import OAuthHandler
 
-import file_handler
+from csv_handler import dictionary_to_csv as csv_save
+from data_handler import parse
 
 
-class GeoListener(StreamListener):
+class GeoStream:
+    def __init__(self, consumer_key, consumer_secret, access_token, access_secret,
+                 location, csv_path=None, database=None):
 
-    TWEETS_PER_SAVE = 2
+        if not (bool(csv_path) ^ bool(database)):
+            raise Exception('Must specify either a CSV file output or MySQL database')
 
-    def __init__(self, city_object, api=None):  # Don't touch this
+        # Twitter API authentication
+        self.consumer_key = consumer_key
+        self.consumer_secret = consumer_secret
+        self.access_token = access_token
+        self.access_secret = access_secret
+
+        self.location = location
+        self.csv_path = csv_path
+        self.database = database
+
+    def start(self, limit_tweets=100):
+        auth = OAuthHandler(self.consumer_key, self.consumer_secret)
+        auth.set_access_token(self.access_token, self.access_secret)
+
+        if self.csv_path:
+            my_listener = CSVGeoListener(csv_path=self.csv_path, limit_tweets=limit_tweets)
+        else:
+            my_listener = SQLGeoListener(database=self.database,
+                                         table_name=self.location.name,
+                                         limit_tweets=limit_tweets
+                                         )
+
+        my_stream = Stream(auth, my_listener)
+        my_stream.filter(locations=self.location.geo_box)
+
+
+class CSVGeoListener(StreamListener):
+    def __init__(self, csv_path, limit_tweets, api=None):
         super().__init__(api=None)
-        self.city_object = city_object
+        self.csv_path = csv_path
+        self.limit_tweets = limit_tweets
         self.counter = 0
-        self.dictionary = {}  # Dictionary of words; keys are words, values are frequency
+        self.dictionary = {}
 
     def on_connect(self):
-        print(">> Connected to Twitter stream!")
+        print(f"Connected! Outputting tweets to {self.csv_path}")
 
     def on_status(self, status):
-
-        # Update counter and print to console
         self.counter += 1
-        print("%d tweets processed" % self.counter)
+        print(f"Tweets processed: {self.counter}")
 
-        # Parse text into a list of all words
-        text = status.text
-        word_list = file_handler.parse(text)
+        for word in parse(status.text):
+            self.dictionary[word] = self.dictionary.get(word, 0) + 1
 
-        # Add word counts to local dictionary variable
-        for word in word_list:
-            self.dictionary[word] = self.dictionary.setdefault(word, 0) + 1
-
-        # Writes dictionary to CSV file every 100 tweets
-        if self.counter % self.TWEETS_PER_SAVE == 0:
-            print(">> Saving to CSV file!")
-            file_handler.dictionary_to_csv(self.city_object, self.dictionary)
+        if self.counter == self.limit_tweets:
+            csv_save(self.dictionary, self.csv_path)
+            return False
 
     def on_error(self, status_code):
-        print("Encountered error with status code: %d" % status_code)
+        csv_save(self.dictionary, self.csv_path)
+        print(f"Encountered error with status code {status_code}")
         if status_code == 420:  # Too many failed connections in a window of time
-            return False  # Kill stream
-        return True  # By default don't kill the stream
+            return False
+        return True
 
     def on_timeout(self):
+        csv_save(self.dictionary, self.csv_path)
         print("Timeout...")
-        return True  # Don't kill the stream
+        return True
 
 
-class AsynchronousGeoListener(GeoListener):
+class SQLGeoListener(StreamListener):
+    def __init__(self, database, table_name, limit_tweets, api=None):
+        super().__init__(api=None)
+        self.database = database
+        self.table_name = table_name
+        self.limit_tweets = limit_tweets
+        self.counter = 0
+        self.dictionary = {}
+
+    def on_connect(self):
+        print(f"Connected! Outputting tweets to {self.database}")
+
     def on_status(self, status):
-        # Update counter and print to console
         self.counter += 1
-        print("%d tweets processed for %s" % (self.counter, self.city_object.city_name))
+        print(f"Tweets processed: {self.counter}")
 
-        # Parse text into a list of all words
-        text = status.text
-        word_list = file_handler.parse(text)
+        for word in parse(status.text):
+            if len(word) < 16:
+                self.dictionary[word] = self.dictionary.get(word, 0) + 1
 
-        # Add word counts to local dictionary variable
-        for word in word_list:
-            self.dictionary[word] = self.dictionary.setdefault(word, 0) + 1
-
-        # Writes dictionary to CSV file once 100 tweets is reached, then exits
-        if self.counter == self.TWEETS_PER_SAVE:
-            print(">> Saving %s to CSV file!" % self.city_object.city_name)
-            file_handler.dictionary_to_csv(self.city_object, self.dictionary)
+        if self.counter == self.limit_tweets:
+            self.database.dictionary_to_sql(self.dictionary, self.table_name)
             return False
+
+    def on_error(self, status_code):
+        self.database.dictionary_to_sql(self.dictionary, self.table_name)
+        print(f"Encountered error with status code {status_code}")
+        if status_code == 420:  # Too many failed connections in a window of time
+            return False
+        return True
+
+    def on_timeout(self):
+        self.database.dictionary_to_sql(self.dictionary, self.table_name)
+        print("Timeout...")
+        return True
