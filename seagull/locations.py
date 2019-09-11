@@ -27,7 +27,7 @@ class Location:
 
     def get_dictionary_from_sql(self):
         if self.database:
-            return self.database.sql_to_dictionary()
+            return self.database.sql_to_dictionary(self.name)
         return {}
 
 

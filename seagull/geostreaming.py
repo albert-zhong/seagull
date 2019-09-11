@@ -8,7 +8,7 @@ from data_handler import parse
 
 class GeoStream:
     def __init__(self, consumer_key, consumer_secret, access_token, access_secret,
-                 location):
+                 location, use_sql=False):
 
         # Twitter API authentication
         self.consumer_key = consumer_key
@@ -18,11 +18,18 @@ class GeoStream:
 
         self.location = location
 
+        if use_sql and not self.location.database:
+            raise Exception('Requires a MySQL database if use_sql=True')
+        elif not use_sql and not self.location.csv_path:
+            raise Exception('Requires a file output path if use_sql=False')
+
+        self.use_sql = use_sql
+
     def start(self, limit_tweets=100):
         auth = OAuthHandler(self.consumer_key, self.consumer_secret)
         auth.set_access_token(self.access_token, self.access_secret)
 
-        if self.location.csv_path:
+        if not self.use_sql:
             my_listener = CSVGeoListener(csv_path=self.location.csv_path, limit_tweets=limit_tweets)
         else:
             my_listener = SQLGeoListener(database=self.location.database,
