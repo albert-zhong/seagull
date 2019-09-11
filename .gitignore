@@ -1,3 +1,4 @@
 env/
 .idea/
 seagull/__pycache__/
+csv/
