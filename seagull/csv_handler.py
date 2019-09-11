@@ -1,6 +1,8 @@
 import csv
 from os import path
 
+from data_handler import combine_dictionaries
+
 
 # Takes a path to a .csv file, returns a dictionary of word -> frequency pairs
 def csv_to_dictionary(csv_path):
@@ -28,18 +30,3 @@ def dictionary_to_csv(dictionary, csv_path):
         writer.writerow(['word', 'frequency'])  # creates header
         for word, frequency in new_dictionary.items():
             writer.writerow([word, frequency])
-
-
-# Takes two dictionaries, combines frequencies, returns a new dictionary
-def combine_dictionaries(dict1, dict2):
-    if len(dict1) > len(dict2):
-        small_dictionary = dict2
-        big_dictionary = dict1
-    else:
-        small_dictionary = dict2
-        big_dictionary = dict1
-
-    for word, frequency in small_dictionary.items():
-        big_dictionary[word] = big_dictionary.get(word, 0) + frequency
-
-    return big_dictionary

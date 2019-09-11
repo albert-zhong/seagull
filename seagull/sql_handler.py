@@ -28,3 +28,16 @@ class Database:
             else:
                 add_row = f"INSERT INTO {table_name}(word, frequency) VALUES('{word}', {frequency})"
                 cursor.execute(add_row)
+
+    def sql_to_dictionary(self, table_name):
+        cursor = self.db.cursor()
+
+        show_rows = f"SELECT * FROM {table_name}"
+        cursor.execute(show_rows)
+
+        dictionary = {}
+
+        for word, frequency in cursor:
+            dictionary[word] = frequency
+
+        return dictionary
